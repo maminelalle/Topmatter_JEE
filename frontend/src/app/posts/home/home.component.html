@@ -1,0 +1,38 @@
+<div class="max-w-2xl mx-auto space-y-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <h3 class="text-sm font-medium text-gray-700 mb-3">Créer une publication</h3>
+    <textarea [(ngModel)]="newPostContent" rows="3" placeholder="À quoi pensez-vous ?" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"></textarea>
+    <div class="mt-3 space-y-2">
+      <div class="flex items-center gap-4">
+        <span class="text-sm text-gray-600">Visibilité :</span>
+        <select [(ngModel)]="newPostVisibility" class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm">
+          <option value="PUBLIC">Public (tous)</option>
+          <option value="GROUP">Groupe</option>
+          <option value="PRIVATE">Privé (moi uniquement)</option>
+        </select>
+        <select *ngIf="newPostVisibility === 'GROUP'" [(ngModel)]="newPostGroupId" class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm">
+          <option [ngValue]="null">Choisir un groupe</option>
+          <option *ngFor="let g of myGroups" [ngValue]="g.id">{{ g.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-3" *ngIf="newPostImageUrl">
+      <div class="relative inline-block">
+        <img [src]="fullImageUrl" alt="Aperçu" class="max-h-48 rounded-lg border border-gray-200 object-cover" />
+        <button type="button" (click)="removePhoto()" class="absolute top-1 right-1 w-8 h-8 rounded-full bg-red-500 text-white text-sm font-bold hover:bg-red-600 shadow">×</button>
+      </div>
+    </div>
+    <div class="flex items-center justify-between mt-3">
+      <div class="flex gap-2">
+        <input #fileInput type="file" accept="image/jpeg,image/png,image/gif,image/webp" class="hidden" (change)="onPhotoSelected($event)" />
+        <button type="button" (click)="fileInput.click()" [disabled]="uploadingImage" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm disabled:opacity-50">
+          {{ uploadingImage ? 'Upload...' : 'Ajouter une photo' }}
+        </button>
+      </div>
+      <button (click)="createPost()" [disabled]="!newPostContent?.trim() || (newPostVisibility === 'GROUP' && !newPostGroupId)" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50">Publier</button>
+    </div>
+  </div>
+  <div *ngIf="loading" class="text-center py-8 text-gray-500">Chargement...</div>
+  <app-post-card *ngFor="let post of posts" [post]="post" (deleted)="deletePost($event)" (liked)="toggleLike(post)"></app-post-card>
+  <div *ngIf="!loading && posts.length === 0" class="text-center py-12 text-gray-500">Aucune publication.</div>
+</div>

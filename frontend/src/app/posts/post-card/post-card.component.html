@@ -1,0 +1,35 @@
+<article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+  <div class="p-4 flex items-start gap-3">
+    <div class="w-10 h-10 rounded-full bg-primary-200 flex items-center justify-center text-primary-700 font-semibold shrink-0">
+      {{ post.author?.username?.charAt(0) || '?' }}
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2">
+        <p class="font-medium text-gray-800">{{ post.author?.username }}</p>
+        <span *ngIf="post.visibility === 'GROUP'" class="text-xs px-2 py-0.5 rounded bg-primary-100 text-primary-700">Groupe</span>
+        <span *ngIf="post.visibility === 'PRIVATE'" class="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600">Privé</span>
+      </div>
+      <p class="text-gray-600 text-sm whitespace-pre-wrap">{{ post.content }}</p>
+    </div>
+  </div>
+  <div *ngIf="post.imageUrl" class="w-full">
+    <img [src]="postImageSrc" alt="Publication" class="w-full max-h-96 object-cover" />
+  </div>
+  <div class="px-4 py-2 flex items-center gap-4 text-sm text-gray-600 border-t border-gray-100">
+    <button (click)="onLike()" class="flex items-center gap-1 hover:text-primary-600 transition" [class.text-red-500]="post.likedByCurrentUser">
+      <svg class="w-5 h-5" [class.fill-current]="post.likedByCurrentUser" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+      {{ post.likeCount }} like(s)
+    </button>
+    <button (click)="showComments = !showComments" class="flex items-center gap-1 hover:text-primary-600 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+      Commentaires
+    </button>
+    <button *ngIf="isAuthor" (click)="onDelete()" class="flex items-center gap-1 text-red-600 hover:text-red-700 ml-auto">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+      Supprimer
+    </button>
+  </div>
+  <div *ngIf="showComments" class="border-t border-gray-100 p-4 bg-gray-50">
+    <app-comment-list [postId]="post.id"></app-comment-list>
+  </div>
+</article>

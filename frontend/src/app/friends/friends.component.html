@@ -1,0 +1,94 @@
+<div class="max-w-3xl mx-auto">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="p-4 border-b border-gray-200 flex gap-2">
+      <button
+        (click)="activeTab = 'all'"
+        [class.bg-primary-600]="activeTab === 'all'"
+        [class.text-white]="activeTab === 'all'"
+        class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100"
+      >
+        Tous les utilisateurs
+      </button>
+      <button
+        (click)="activeTab = 'friends'"
+        [class.bg-primary-600]="activeTab === 'friends'"
+        [class.text-white]="activeTab === 'friends'"
+        class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100"
+      >
+        Mes amis
+      </button>
+      <button
+        (click)="activeTab = 'requests'; loadRequests()"
+        [class.bg-primary-600]="activeTab === 'requests'"
+        [class.text-white]="activeTab === 'requests'"
+        class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100"
+      >
+        Demandes reçues ({{ requests.length }})
+      </button>
+    </div>
+
+    <!-- Tous les utilisateurs -->
+    <div *ngIf="activeTab === 'all'" class="divide-y divide-gray-100 max-h-[60vh] overflow-auto">
+      <div *ngFor="let u of allUsers" class="p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-primary-200 flex items-center justify-center text-primary-700 font-semibold">{{ u.username?.charAt(0) }}</div>
+          <div>
+            <p class="font-medium">{{ u.username }}</p>
+            <p class="text-sm text-gray-500">{{ u.online ? 'En ligne' : 'Hors ligne' }}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <ng-container *ngIf="isFriend(u.id)">
+            <button (click)="message(u.id)" class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm">Message</button>
+            <button (click)="unfriend(u.id)" class="px-3 py-2 rounded-lg border text-gray-600 text-sm">Retirer</button>
+          </ng-container>
+          <ng-container *ngIf="!isFriend(u.id) && isSentRequest(u.id)">
+            <button (click)="cancelRequest(u.id)" class="px-4 py-2 rounded-lg border border-amber-500 text-amber-700 text-sm">Annuler la demande</button>
+            <button (click)="message(u.id)" class="px-3 py-2 rounded-lg border text-sm">Message</button>
+          </ng-container>
+          <ng-container *ngIf="!isFriend(u.id) && !isSentRequest(u.id)">
+            <button (click)="addFriend(u.id)" class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm">Ajouter comme ami</button>
+            <button (click)="message(u.id)" class="px-3 py-2 rounded-lg border text-sm">Message</button>
+          </ng-container>
+        </div>
+      </div>
+      <div *ngIf="loadError" class="p-4 bg-red-50 text-red-700 rounded-lg mx-4 my-2">{{ loadError }}</div>
+      <div *ngIf="loading && allUsers.length === 0" class="p-8 text-center text-gray-500">Chargement...</div>
+      <div *ngIf="!loading && activeTab === 'all' && allUsers.length === 0 && !loadError" class="p-8 text-center text-gray-500">Aucun autre utilisateur pour le moment.</div>
+    </div>
+
+    <!-- Mes amis -->
+    <div *ngIf="activeTab === 'friends'" class="divide-y divide-gray-100 max-h-[60vh] overflow-auto">
+      <div *ngFor="let f of friends" class="p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-primary-200 flex items-center justify-center text-primary-700 font-semibold">{{ f.username?.charAt(0) }}</div>
+          <div>
+            <p class="font-medium">{{ f.username }}</p>
+            <p class="text-sm text-gray-500">{{ f.online ? 'En ligne' : 'Hors ligne' }}</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button (click)="message(f.id)" class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm">Message</button>
+          <button (click)="unfriend(f.id)" class="px-4 py-2 rounded-lg border text-gray-600 text-sm">Retirer</button>
+        </div>
+      </div>
+      <div *ngIf="friends.length === 0" class="p-8 text-center text-gray-500">Aucun ami. Ajoutez des utilisateurs depuis l'onglet « Tous les utilisateurs ».</div>
+    </div>
+
+    <!-- Demandes reçues -->
+    <div *ngIf="activeTab === 'requests'" class="divide-y divide-gray-100 max-h-[60vh] overflow-auto">
+      <div *ngFor="let r of requests" class="p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-primary-200 flex items-center justify-center text-primary-700 font-medium">{{ r.user?.username?.charAt(0) }}</div>
+          <span class="font-medium">{{ r.user?.username }}</span>
+        </div>
+        <div class="flex gap-2">
+          <button (click)="rejectRequest(r.id)" class="px-3 py-2 rounded-lg border text-sm">Refuser</button>
+          <button (click)="acceptRequest(r.id)" class="px-3 py-2 rounded-lg bg-primary-600 text-white text-sm">Accepter</button>
+          <button (click)="message(r.user.id)" class="px-3 py-2 rounded-lg border text-sm">Message</button>
+        </div>
+      </div>
+      <div *ngIf="requests.length === 0" class="p-8 text-center text-gray-500">Aucune demande en attente.</div>
+    </div>
+  </div>
+</div>

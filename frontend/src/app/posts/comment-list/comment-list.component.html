@@ -1,0 +1,17 @@
+<div class="space-y-3">
+  <div *ngIf="loading" class="text-sm text-gray-500">Chargement des commentaires...</div>
+  <div *ngFor="let c of comments" class="flex gap-2">
+    <div class="w-8 h-8 rounded-full bg-primary-200 flex items-center justify-center text-primary-700 text-sm font-medium shrink-0">{{ c.user?.username?.charAt(0) }}</div>
+    <div class="flex-1 min-w-0">
+      <p class="text-sm"><span class="font-medium text-gray-800">{{ c.user?.username }}</span> {{ c.content }}</p>
+      <div class="flex gap-2 mt-1 text-xs text-gray-500">
+        <span>{{ c.createdAt | date:'short' }}</span>
+        <button *ngIf="canDelete(c)" (click)="deleteComment(c.id)" class="text-red-500 hover:underline">Supprimer</button>
+      </div>
+    </div>
+  </div>
+  <div class="flex gap-2 pt-2">
+    <input [(ngModel)]="newComment" type="text" placeholder="Ajouter un commentaire..." class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" (keyup.enter)="addComment()" />
+    <button (click)="addComment()" [disabled]="!newComment?.trim()" class="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium disabled:opacity-50">Envoyer</button>
+  </div>
+</div>

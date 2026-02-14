@@ -1,0 +1,26 @@
+# Profil test : H2 en mémoire pour les tests (pas de Postgres requis)
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
+
+app:
+  jwt:
+    secret: TestSecretPourLesTestsUniquement123456
+    expiration-ms: 3600000
+  upload-dir: ${java.io.tmpdir}/upload-test
+
+logging:
+  level:
+    com.app: INFO
+    org.springframework.security: WARN

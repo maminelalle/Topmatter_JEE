@@ -1,0 +1,55 @@
+# Configuration Docker Compose pour déploiement AWS
+# Utilise RDS PostgreSQL au lieu d'un conteneur PostgreSQL local
+# Usage: docker-compose -f docker-compose.aws.yml up -d --build
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      # Les credentials viennent de Secrets Manager via le code Java
+      # Variables d'environnement de fallback (optionnel)
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: ${DB_URL:-jdbc:postgresql://localhost:5432/social_network}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}
+      # JWT Secret (peut aussi venir de Secrets Manager)
+      JWT_SECRET: ${JWT_SECRET:-MaCleSecreteTresLonguePourSignerLesTokensJWT123456}
+      # Upload directory
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - topmatter-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - API_URL=/api
+        - WS_URL=
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - topmatter-network
+    restart: unless-stopped
+
+volumes:
+  uploads_data:
+
+networks:
+  topmatter-network:
+    driver: bridge
